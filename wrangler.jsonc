@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "voleycanariaslive",
+  "compatibility_date": "2026-11-23",
+  // Sitio estático: Cloudflare sirve los ficheros de esta carpeta (ver .assetsignore)
+  "assets": {
+    "directory": "."
+  }
+}
