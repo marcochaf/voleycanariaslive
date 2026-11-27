@@ -5,3 +5,5 @@ wrangler.jsonc
 node_modules
 .git
 .DS_Store
+.gitignore
+LICENSE
