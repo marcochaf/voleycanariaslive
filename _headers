@@ -8,3 +8,6 @@
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: max-age=3600

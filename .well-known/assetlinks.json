@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "stream.voleycanariaslive.twa",
+      "sha256_cert_fingerprints": [
+        "8C:0D:0A:77:2C:73:44:9E:8C:F2:B0:EA:E9:BD:B5:44:A4:4C:A4:18:A3:1A:79:A5:49:05:81:1A:66:08:D2:17"
+      ]
+    }
+  }
+]
