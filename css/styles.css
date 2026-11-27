@@ -222,5 +222,9 @@ button { font: inherit; color: inherit; }
 .st-table tr.fav td { background: rgba(255, 204, 0, .2); }
 .st-table tr.fav td:first-child { box-shadow: inset 3px 0 var(--accent); }
 .st-table tr.fav .tname { font-weight: 700; color: #fff; }
-.match-teams .row.fav { background: rgba(255, 204, 0, .2); box-shadow: inset 3px 0 var(--accent); margin: 0 -8px; padding: 4px 8px; border-radius: 8px; }
+/* Tarjeta completa destacada si juega un favorito (:has sigue al toggle de .fav sin tocar JS) */
+.match:has(.row.fav) { background: linear-gradient(180deg, rgba(255, 204, 0, .22), rgba(255, 204, 0, .1)), var(--card); border-color: var(--accent); box-shadow: 0 0 0 1px rgba(255, 204, 0, .35), 0 8px 30px -12px rgba(255, 204, 0, .45); }
+/* En directo mantiene el borde rojo para no perder el aviso de partido en juego */
+.match.status-live:has(.row.fav) { border-color: rgba(255, 59, 78, .6); box-shadow: 0 0 0 1px rgba(255, 59, 78, .25), 0 8px 30px -12px rgba(255, 59, 78, .5); }
 .match-teams .row.fav .name { color: #fff; font-weight: 700; }
+.match-teams .row.fav .name::before { content: '★ '; color: var(--accent); }
