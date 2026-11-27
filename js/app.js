@@ -534,6 +534,79 @@ function toast(msg) {
   setTimeout(() => t.remove(), 2200);
 }
 
+// ---------- aviso para instalar la app (PWA) ----------
+// Android/Chrome: diálogo nativo (beforeinstallprompt). iPhone/iPad: instrucciones, Safari no permite lanzarlo.
+// Solo desde la segunda visita, en la portada, y si se cierra no vuelve en 30 días.
+const INSTALL_KEY = 'vcl.install.v1';
+const INSTALL_SNOOZE_MS = 30 * 24 * 3600 * 1000;
+const INSTALL_DELAY_MS = 4000;
+const installState = (() => { try { return JSON.parse(localStorage.getItem(INSTALL_KEY)) || {}; } catch { return {}; } })();
+const saveInstall = () => { try { localStorage.setItem(INSTALL_KEY, JSON.stringify(installState)); } catch {} };
+installState.visits = (installState.visits || 0) + 1;
+saveInstall();
+
+const isStandalone = () =>
+  matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches ||
+  navigator.standalone === true || document.referrer.startsWith('android-app://');
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+let installPrompt = null, installBanner = null, installReady = false;
+
+function canShowInstall() {
+  return !isStandalone() && installState.visits >= 2 &&
+    !(installState.dismissedAt && Date.now() - installState.dismissedAt < INSTALL_SNOOZE_MS) &&
+    !location.hash.startsWith('#/m/') && (installPrompt || isIOS);
+}
+function hideInstall() {
+  installBanner?.remove();
+  installBanner = null;
+  document.body.classList.remove('has-install');
+}
+function dismissInstall() {
+  installState.dismissedAt = Date.now();
+  saveInstall();
+  hideInstall();
+}
+function showInstall() {
+  if (installBanner || !installReady || !canShowInstall()) return;
+  const ios = !installPrompt;
+  installBanner = document.createElement('aside');
+  installBanner.className = 'install';
+  installBanner.setAttribute('aria-label', 'Instalar la aplicación');
+  installBanner.innerHTML = `
+    <img src="icons/icon-192.png" alt="" width="40" height="40">
+    <div class="install-text">
+      <b>Instala Voley Live</b>
+      <small>${ios
+        ? 'Pulsa <span class="ios-share" aria-label="Compartir"></span> Compartir y luego «Añadir a pantalla de inicio».'
+        : 'Los marcadores, a un toque desde tu pantalla de inicio.'}</small>
+    </div>
+    ${ios ? '' : '<button class="btn install-go">Instalar</button>'}
+    <button class="install-x" aria-label="Cerrar">×</button>`;
+  installBanner.querySelector('.install-x').onclick = dismissInstall;
+  installBanner.querySelector('.install-go')?.addEventListener('click', async () => {
+    const p = installPrompt;
+    installPrompt = null; // el evento solo se puede usar una vez
+    hideInstall();
+    p.prompt();
+    const { outcome } = await p.userChoice.catch(() => ({ outcome: 'dismissed' }));
+    if (outcome !== 'accepted') dismissInstall();
+  });
+  document.body.appendChild(installBanner);
+  document.body.classList.add('has-install');
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); // en vez de la mini-barra de Chrome, usamos nuestro banner
+  installPrompt = e;
+  showInstall();
+});
+// Si ya está instalada Chrome deja de lanzar beforeinstallprompt, no hace falta recordarlo
+window.addEventListener('appinstalled', () => { installPrompt = null; hideInstall(); });
+// Fuera del marcador; al volver a la portada puede reaparecer
+window.addEventListener('hashchange', () => (location.hash.startsWith('#/m/') ? hideInstall() : showInstall()));
+setTimeout(() => { installReady = true; showInstall(); }, INSTALL_DELAY_MS);
+
 // ---------- arranque ----------
 abortCtl = new AbortController();
 route();
