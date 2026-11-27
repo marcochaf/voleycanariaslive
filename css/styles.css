@@ -35,7 +35,8 @@ button { font: inherit; color: inherit; }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 18px; letter-spacing: .2px; }
 .brand b { color: var(--accent); }
 
-.container { width: 100%; max-width: 960px; margin: 0 auto; padding: 16px 16px calc(env(safe-area-inset-bottom) + 24px); flex: 1; }
+.container { width: 100%; max-width: 960px; margin: 0 auto; padding: 16px; flex: 1; }
+.credits { text-align: center; color: var(--muted); font-size: 12px; padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px); }
 
 .card { background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: var(--radius); }
 
@@ -163,7 +164,7 @@ button { font: inherit; color: inherit; }
 .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translateX(-50%); background: var(--card2); border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; z-index: 50; }
 
 /* Pantalla completa / modo TV */
-:fullscreen .appbar, :fullscreen .back { display: none; }
+:fullscreen .appbar, :fullscreen .credits, :fullscreen .back { display: none; }
 :fullscreen .container { max-width: none; display: flex; flex-direction: column; justify-content: center; }
 :fullscreen .scoreboard { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
@@ -247,6 +248,6 @@ button { font: inherit; color: inherit; }
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 17'%3E%3Cpath d='M7 0l3.5 3.5-1 1L7.7 2.7V11H6.3V2.7L4.5 4.5l-1-1zM1 6h3.5v1.4H2.4v8.2h9.2V7.4H9.5V6H13v11H1z'/%3E%3C/svg%3E") no-repeat center / contain;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 17'%3E%3Cpath d='M7 0l3.5 3.5-1 1L7.7 2.7V11H6.3V2.7L4.5 4.5l-1-1zM1 6h3.5v1.4H2.4v8.2h9.2V7.4H9.5V6H13v11H1z'/%3E%3C/svg%3E") no-repeat center / contain;
 }
-/* Que el banner no tape el final de la página */
-body.has-install .container { padding-bottom: calc(env(safe-area-inset-bottom) + 110px); }
+/* Que el banner no tape el pie de página */
+body.has-install .credits { padding-bottom: calc(env(safe-area-inset-bottom) + 100px); }
 :fullscreen .install { display: none; }
