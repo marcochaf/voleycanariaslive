@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Icono adaptable (maskable): fondo a sangre y dibujo dentro de la zona segura (círculo central del 80%) -->
+  <rect width="512" height="512" fill="#0b1530"/>
+  <g transform="translate(256 256) scale(.78) translate(-256 -256)">
+    <circle cx="256" cy="256" r="150" fill="#ffcc00"/>
+    <g fill="none" stroke="#0b1530" stroke-width="18" stroke-linecap="round">
+      <circle cx="256" cy="256" r="150"/>
+      <path d="M256 106c-40 60-40 140 0 150s110 60 120 110"/>
+      <path d="M118 200c70-10 130 10 138 56s-30 110-90 140"/>
+      <path d="M394 200c-50 40-100 60-138 56"/>
+    </g>
+    <circle cx="410" cy="110" r="34" fill="#ff3b4e"/>
+  </g>
+</svg>

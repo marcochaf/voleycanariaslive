@@ -1,5 +1,5 @@
 // Service worker: app shell en caché (offline), datos de la API siempre de red.
-const VERSION = 'vcl-v7';
+const VERSION = 'vcl-v8';
 const SHELL = [
   './',
   './index.html',
