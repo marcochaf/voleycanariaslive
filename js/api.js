@@ -37,7 +37,7 @@ async function getAll(path, opts) {
   return { data, included };
 }
 
-/** Torneos de la temporada en curso, agrupados por categoría. */
+/** Torneos en curso de la temporada actual, agrupados por categoría. */
 export async function fetchCategories(opts) {
   const live = await get(`/tournaments?filter=manager.id:${MANAGER_ID},status:in_progress&page[size]=100`, opts);
   // Cada disciplina (pista, playa…) tiene su propia temporada: nos quedamos con la más reciente de cada una
@@ -54,6 +54,8 @@ export async function fetchCategories(opts) {
   const { rel } = indexDoc(doc);
   const cats = new Map();
   for (const t of doc.data) {
+    // Fuera las competiciones ya finalizadas o canceladas
+    if (t.attributes.status !== 'in_progress') continue;
     const c = rel(t, 'category');
     const key = c?.id || '0';
     if (!cats.has(key)) cats.set(key, { id: key, name: c?.attributes.name?.replace(/ Voleibol$/, '') || 'Otras', order: c?.attributes.order ?? 99, tournaments: [] });
