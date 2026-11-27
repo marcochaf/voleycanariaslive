@@ -21,6 +21,36 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
 const save = (s) => { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch {} };
 
+// ---------- equipos favoritos ----------
+// Cada equipo pertenece a una sola competición en la API, así que guardamos varios IDs de equipo
+const FAVS_KEY = 'vcl.favs.v1';
+const favs = new Set((() => { try { return JSON.parse(localStorage.getItem(FAVS_KEY)) || []; } catch { return []; } })().map(String));
+const isFav = (id) => id != null && favs.has(String(id));
+function toggleFav(id) {
+  id = String(id);
+  favs.has(id) ? favs.delete(id) : favs.add(id);
+  try { localStorage.setItem(FAVS_KEY, JSON.stringify([...favs])); } catch {}
+  // Actualizamos lo que ya está pintado sin recargar datos
+  const on = favs.has(id);
+  document.querySelectorAll(`[data-team="${CSS.escape(id)}"]`).forEach((el) => el.classList.toggle('fav', on));
+  document.querySelectorAll(`.fav-btn[data-fav="${CSS.escape(id)}"]`).forEach((b) => {
+    b.setAttribute('aria-pressed', String(on));
+    b.textContent = on ? '★' : '☆';
+  });
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.fav-btn');
+  if (!b) return;
+  e.preventDefault();
+  toggleFav(b.dataset.fav);
+});
+function favBtn(team) {
+  const on = isFav(team.id);
+  return `<button class="fav-btn" data-fav="${esc(team.id)}" aria-pressed="${on}" aria-label="Equipo favorito: ${esc(team.name)}" title="Marcar como favorito">${on ? '★' : '☆'}</button>`;
+}
+const teamData = (team) => (team.id != null ? ` data-team="${esc(team.id)}"` : '');
+const favCls = (team) => (isFav(team.id) ? 'fav' : '');
+
 function initials(name) {
   return name.replace(/^(C\.?V\.?|C\.?D\.?|CV|CD|U\.?D\.?|A\.?D\.?)\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 }
@@ -290,14 +320,18 @@ function matchCard(m) {
       <span class="badge badge-${m.status}">${m.status === 'live' ? '<i class="dot"></i>' : ''}${STATUS_LABEL[m.status]}</span>
     </div>
     <div class="match-teams">
-      <div class="row ${win === 'home' ? 'winner' : ''}">${logo(m.home, 'sm')}<span class="name">${esc(m.home.name)}</span><b class="sets">${showScore ? m.setsHome : ''}</b></div>
-      <div class="row ${win === 'away' ? 'winner' : ''}">${logo(m.away, 'sm')}<span class="name">${esc(m.away.name)}</span><b class="sets">${showScore ? m.setsAway : ''}</b></div>
+      ${teamRow(m.home, win === 'home', showScore ? m.setsHome : '')}
+      ${teamRow(m.away, win === 'away', showScore ? m.setsAway : '')}
     </div>
     <div class="match-foot">
       <span>${m.facility ? '📍 ' + esc(m.facility.short) : ''}</span>
       ${sets ? `<span class="setline">${esc(sets)}</span>` : ''}
     </div>
   </a>`;
+}
+
+function teamRow(team, winner, sets) {
+  return `<div class="row ${winner ? 'winner' : ''} ${favCls(team)}"${teamData(team)}>${logo(team, 'sm')}<span class="name">${esc(team.name)}</span><b class="sets">${sets}</b></div>`;
 }
 
 // ---------- marcador ----------
@@ -463,9 +497,9 @@ function standingsTable(rows, highlight = []) {
     </tr></thead>
     <tbody>
       ${rows.map((r) => `
-      <tr class="${highlight.includes(r.id) ? 'hl' : ''}">
+      <tr class="${highlight.includes(r.id) ? 'hl' : ''} ${favCls(r)}"${teamData(r)}>
         <td class="pos">${r.position}</td>
-        <td class="team"><span>${logo(r, 'xs')}<span class="tname">${esc(r.name)}</span></span></td>
+        <td class="team"><span>${favBtn(r)}${logo(r, 'xs')}<span class="tname">${esc(r.name)}</span></span></td>
         <td class="pts">${r.points}</td>
         <td>${r.played}</td><td>${r.won}</td><td>${r.lost}</td>
         <td>${r.setsFor}</td><td>${r.setsAgainst}</td>
@@ -474,7 +508,7 @@ function standingsTable(rows, highlight = []) {
     </tbody>
   </table>
   </div>
-  <p class="st-legend">PJ jugados · PG ganados · PP perdidos · SF/SC sets a favor/en contra<span class="xs-hide"> · PF/PC puntos a favor/en contra</span></p>`;
+  <p class="st-legend">Toca ☆ para destacar tus equipos favoritos · PJ jugados · PG ganados · PP perdidos · SF/SC sets a favor/en contra<span class="xs-hide"> · PF/PC puntos a favor/en contra</span></p>`;
 }
 
 function dots(n) { return `<i class="sd"></i>`.repeat(Math.max(0, Math.min(n, 5))); }
